@@ -1,0 +1,5 @@
+psutil
+fastapi
+uvicorn
+reportlab
+requests
