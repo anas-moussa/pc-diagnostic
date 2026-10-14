@@ -38,3 +38,51 @@ pc-diagnostic/
 ```
 pip install -r backend/requirements.txt
 ```
+## Phase 1 : diagnostic local (état actuel)
+
+Le programme lit le matériel du PC et produit un fichier JSON.
+
+### Ce qui est collecté
+| Section | Contenu |
+|---|---|
+| `systeme` | OS, version, architecture, nom de la machine |
+| `cpu` | modèle, cœurs, fréquence nominale, utilisation |
+| `memoire` | RAM totale, utilisée, libre |
+| `disques` | partitions (espace libre) et santé S.M.A.R.T. via `smartctl` |
+| `batterie` | niveau, branchée ou non, autonomie estimée |
+| `temperatures` | température du CPU (LibreHardwareMonitor sous Windows) |
+
+**Principe :** si une donnée n'est pas accessible, la section contient
+`"disponible": false` et la raison. Rien n'est inventé.
+
+### Prérequis
+- Python 3.12
+- *(optionnel)* [smartmontools](https://www.smartmontools.org/) pour la santé des disques
+- *(optionnel, Windows)* [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
+  lancé en administrateur, avec **Options → Remote Web Server → Run**,
+  pour la température du processeur
+
+### Installation (Windows, PowerShell)
+```powershell
+git clone https://github.com/anas-moussa/pc-diagnostic.git
+cd pc-diagnostic\backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+Sous Linux : `source .venv/bin/activate` à la place de la ligne d'activation.
+
+### Lancement
+Depuis la racine du projet, avec l'environnement virtuel activé :
+```powershell
+python backend\diagnostic.py
+```
+Le JSON s'affiche et est enregistré dans `data/dernier_diagnostic.json`
+(fichier ignoré par Git : il contient le nom de la machine).
+
+### État des tests
+- Windows 11 : testé
+- Linux : code prévu, pas encore testé
+- Disques SATA : lecture prévue, pas encore testée (seul un SSD NVMe a été testé)
+- Usure de la batterie : non mesurée pour l'instant
